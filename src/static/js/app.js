@@ -1,16 +1,21 @@
 function App() {
     const { Container, Row, Col } = ReactBootstrap;
     return (
-        <Container>
-            <Row>
-                <Col md={{ offset: 3, span: 6 }}>
-                    <TodoListCard />
-                </Col>
-            </Row>
-        </Container>
+        <div>
+            <div className="banner">
+                <h1>TO DO LIST</h1>
+            </div>
+            <Container>
+                <Row>
+                    <Col md={{ offset: 3, span: 6 }}>
+                        <TodoListCard />
+                    </Col>
+                </Row>
+            </Container>
+        </div>
     );
 }
-//Changes made to the code
+
 function TodoListCard() {
     const [items, setItems] = React.useState(null);
 
@@ -47,13 +52,32 @@ function TodoListCard() {
         [items],
     );
 
+    const onDeleteAllItems = () => {
+        fetch('/items', {
+            method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                setItems([]);
+            } else {
+                console.error('Failed to delete all items');
+            }
+        })
+        .catch(error => {
+            console.error('Network error:', error);
+        });
+    };
+    
+
     if (items === null) return 'Loading...';
 
     return (
-        <React.Fragment>
+        <React.Fragment> 
             <AddItemForm onNewItem={onNewItem} />
+            <button class = "deleteAll" onClick={onDeleteAllItems}>Delete All Items</button>
             {items.length === 0 && (
-                <p className="text-center">No items yet! Add one above!</p>
+                <p className="NoItems">No items yet! Add one above!</p>
             )}
             {items.map(item => (
                 <ItemDisplay
@@ -72,14 +96,13 @@ function AddItemForm({ onNewItem }) {
 
     const [newItem, setNewItem] = React.useState('');
     const [submitting, setSubmitting] = React.useState(false);
-    const [newItemPriority, setNewItemPriority] = React.useState('medium');
 
     const submitNewItem = e => {
         e.preventDefault();
         setSubmitting(true);
         fetch('/items', {
             method: 'POST',
-            body: JSON.stringify({ name: newItem, priority: newItemPriority }),
+            body: JSON.stringify({ name: newItem }),
             headers: { 'Content-Type': 'application/json' },
         })
             .then(r => r.json())
@@ -87,7 +110,6 @@ function AddItemForm({ onNewItem }) {
                 onNewItem(item);
                 setSubmitting(false);
                 setNewItem('');
-                setNewItemPriority('medium');
             });
     };
 
@@ -101,15 +123,6 @@ function AddItemForm({ onNewItem }) {
                     placeholder="New Item"
                     aria-describedby="basic-addon1"
                 />
-                <Form.Control
-                    as="select"
-                    value={newItemPriority}
-                    onChange={e => setNewItemPriority(e.target.value)}
-                >
-                    <option value="low">Low Priority</option>
-                    <option value="medium">Medium Priority</option>
-                    <option value="high">High Priority</option>
-                </Form.Control>
                 <InputGroup.Append>
                     <Button
                         type="submit"
@@ -126,7 +139,9 @@ function AddItemForm({ onNewItem }) {
 }
 
 function ItemDisplay({ item, onItemUpdate, onItemRemoval }) {
-    const { Container, Row, Col, Button } = ReactBootstrap;
+    const { Container, Row, Col, Button, Form } = ReactBootstrap;
+    const [editing, setEditing] = React.useState(false);
+    const [editedName, setEditedName] = React.useState(item.name);
 
     const toggleCompletion = () => {
         fetch(`/items/${item.id}`, {
@@ -134,7 +149,6 @@ function ItemDisplay({ item, onItemUpdate, onItemRemoval }) {
             body: JSON.stringify({
                 name: item.name,
                 completed: !item.completed,
-                priority: item.priority,
             }),
             headers: { 'Content-Type': 'application/json' },
         })
@@ -146,6 +160,26 @@ function ItemDisplay({ item, onItemUpdate, onItemRemoval }) {
         fetch(`/items/${item.id}`, { method: 'DELETE' }).then(() =>
             onItemRemoval(item),
         );
+    };
+
+    const editItem = () => {
+        setEditing(true);
+    };
+
+    const saveEdit = () => {
+        fetch(`/items/${item.id}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+                name: editedName,
+                completed: item.completed,
+            }),
+            headers: { 'Content-Type': 'application/json' },
+        })
+            .then(r => r.json())
+            .then(updatedItem => {
+                onItemUpdate(updatedItem);
+                setEditing(false);
+            });
     };
 
     return (
@@ -170,11 +204,25 @@ function ItemDisplay({ item, onItemUpdate, onItemRemoval }) {
                         />
                     </Button>
                 </Col>
-                <Col xs={8} className="name">
-                    {item.name}
-                </Col>
-                <Col xs={2} className="text-center priority">
-                    {item.priority ===  'low' ? 'Low' : item.priority === 'medium' ? 'Medium' : 'High'}
+                <Col xs={10} className={`name ${editing ? 'editing' : ''}`}>
+                    {editing ? (
+                        <React.Fragment>
+                            <Form.Control
+                                type="text"
+                                value={editedName}
+                                onChange={e => setEditedName(e.target.value)}
+                            />
+                            <Button
+                                size="sm"
+                                variant="success"
+                                onClick={saveEdit}
+                            >
+                                Save
+                            </Button>
+                        </React.Fragment>
+                    ) : (
+                        item.name
+                    )}
                 </Col>
                 <Col xs={1} className="text-center remove">
                     <Button
@@ -184,6 +232,14 @@ function ItemDisplay({ item, onItemUpdate, onItemRemoval }) {
                         aria-label="Remove Item"
                     >
                         <i className="fa fa-trash text-danger" />
+                    </Button>
+                    <Button
+                        size="sm"
+                        variant="link"
+                        onClick={editItem}
+                        aria-label="Edit Item"
+                    >
+                        <i className="fa fa-edit" />
                     </Button>
                 </Col>
             </Row>

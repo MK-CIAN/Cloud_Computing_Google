@@ -10,7 +10,7 @@ function App() {
         </Container>
     );
 }
-
+//Changes made to the code
 function TodoListCard() {
     const [items, setItems] = React.useState(null);
 
@@ -72,13 +72,14 @@ function AddItemForm({ onNewItem }) {
 
     const [newItem, setNewItem] = React.useState('');
     const [submitting, setSubmitting] = React.useState(false);
+    const [newItemPriority, setNewItemPriority] = React.useState('medium');
 
     const submitNewItem = e => {
         e.preventDefault();
         setSubmitting(true);
         fetch('/items', {
             method: 'POST',
-            body: JSON.stringify({ name: newItem }),
+            body: JSON.stringify({ name: newItem, priority: newItemPriority }),
             headers: { 'Content-Type': 'application/json' },
         })
             .then(r => r.json())
@@ -86,6 +87,7 @@ function AddItemForm({ onNewItem }) {
                 onNewItem(item);
                 setSubmitting(false);
                 setNewItem('');
+                setNewItemPriority('medium');
             });
     };
 
@@ -99,6 +101,15 @@ function AddItemForm({ onNewItem }) {
                     placeholder="New Item"
                     aria-describedby="basic-addon1"
                 />
+                <Form.Control
+                    as="select"
+                    value={newItemPriority}
+                    onChange={e => setNewItemPriority(e.target.value)}
+                >
+                    <option value="low">Low Priority</option>
+                    <option value="medium">Medium Priority</option>
+                    <option value="high">High Priority</option>
+                </Form.Control>
                 <InputGroup.Append>
                     <Button
                         type="submit"
@@ -123,6 +134,7 @@ function ItemDisplay({ item, onItemUpdate, onItemRemoval }) {
             body: JSON.stringify({
                 name: item.name,
                 completed: !item.completed,
+                priority: item.priority,
             }),
             headers: { 'Content-Type': 'application/json' },
         })
@@ -157,6 +169,9 @@ function ItemDisplay({ item, onItemUpdate, onItemRemoval }) {
                             }`}
                         />
                     </Button>
+                </Col>
+                <Col xs={2} className="priority">
+                    {item.priority ===  'low' ? 'Low' : item.priority === 'medium' ? 'Medium' : 'High'}
                 </Col>
                 <Col xs={10} className="name">
                     {item.name}

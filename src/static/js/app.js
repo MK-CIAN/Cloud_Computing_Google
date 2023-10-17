@@ -47,15 +47,23 @@ function TodoListCard() {
         [items],
     );
 
-    if (items === null) return 'Loading...';
+    const sortedItems = items && [...items].sort((a, b) => {
+        if (a.priority === 'high' && b.priority !== 'high') return -1;
+        if (b.priority === 'high' && a.priority !== 'high') return 1;
+        if (a.priority === 'medium' && b.priority === 'low') return -1;
+        if (b.priority === 'medium' && a.priority === 'low') return 1;
+        return 0;
+    });
+
+    if (sortedItems === null) return 'Loading...';
 
     return (
         <React.Fragment>
             <AddItemForm onNewItem={onNewItem} />
-            {items.length === 0 && (
+            {sortedItems.length === 0 && (
                 <p className="text-center">No items yet! Add one above!</p>
             )}
-            {items.map(item => (
+            {sortedItems.map(item => (
                 <ItemDisplay
                     item={item}
                     key={item.id}
@@ -104,11 +112,11 @@ function AddItemForm({ onNewItem }) {
                 <Form.Control
                     as="select"
                     value={newItemPriority}
-                    onChange={e => setNewItemPriority(e.target.value)}
+                    onChange={e => setNewItemPriority(e.target.value)}  
                 >
-                    <option value="low">Low Priority</option>
-                    <option value="medium">Medium Priority</option>
-                    <option value="high">High Priority</option>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
                 </Form.Control>
                 <InputGroup.Append>
                     <Button
@@ -127,7 +135,7 @@ function AddItemForm({ onNewItem }) {
 
 function ItemDisplay({ item, onItemUpdate, onItemRemoval }) {
     const { Container, Row, Col, Button } = ReactBootstrap;
-
+     console.log('item', item);
     const toggleCompletion = () => {
         fetch(`/items/${item.id}`, {
             method: 'PUT',
@@ -170,11 +178,13 @@ function ItemDisplay({ item, onItemUpdate, onItemRemoval }) {
                         />
                     </Button>
                 </Col>
-                <Col xs={2} className="priority">
-                    {item.priority ===  'low' ? 'Low' : item.priority === 'medium' ? 'Medium' : 'High'}
-                </Col>
-                <Col xs={10} className="name">
+                <Col xs={8} className="name">
                     {item.name}
+                </Col>
+                <Col xs={2} className="text-center priority">
+                    <span>
+                        {item.priority === 'low' ? 'Low' : item.priority === 'medium' ? 'Medium' : 'High'}
+                    </span>
                 </Col>
                 <Col xs={1} className="text-center remove">
                     <Button

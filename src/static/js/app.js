@@ -3,7 +3,7 @@ function App() {
     return (
         <div>
             <div className="banner">
-                <h1>TO DO LIST</h1>
+                <h1>CIANS TO DO LIST</h1>
             </div>
             <Container>
                 <Row>

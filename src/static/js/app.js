@@ -122,6 +122,7 @@ function AddItemForm({ onNewItem }) {
                     type="text"
                     placeholder="New Item"
                     aria-describedby="basic-addon1"
+		    disabled
                 />
                 <InputGroup.Append>
                     <Button
@@ -129,6 +130,7 @@ function AddItemForm({ onNewItem }) {
                         variant="success"
                         disabled={!newItem.length}
                         className={submitting ? 'disabled' : ''}
+			disabled
                     >
                         {submitting ? 'Adding...' : 'Add Item'}
                     </Button>
@@ -230,6 +232,7 @@ function ItemDisplay({ item, onItemUpdate, onItemRemoval }) {
                         variant="link"
                         onClick={removeItem}
                         aria-label="Remove Item"
+			disabled
                     >
                         <i className="fa fa-trash text-danger" />
                     </Button>
@@ -238,6 +241,7 @@ function ItemDisplay({ item, onItemUpdate, onItemRemoval }) {
                         variant="link"
                         onClick={editItem}
                         aria-label="Edit Item"
+			disabled
                     >
                         <i className="fa fa-edit" />
                     </Button>

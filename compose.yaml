@@ -1,7 +1,7 @@
 services:
   app:
     container_name: read_write_App
-    image: ianhipolito/cloud_computing_docker_repo:1.2
+    image: cianmk/getting-started:latest
     ports:
       - 80:3000
     environment:

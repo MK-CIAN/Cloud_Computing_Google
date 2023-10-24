@@ -1,0 +1,31 @@
+services:
+  app:
+    container_name: read_write_App
+    image: ianhipolito/cloud_computing_docker_repo:1.2
+    ports:
+      - 80:3000
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: secret
+      MYSQL_DB: todos
+  mysql:
+    image: mysql:8.0
+    volumes:
+      - todo-mysql-data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_DATABASE=todos
+  app2:
+    container_name: read_only_App
+    image: readonly_getting_started
+    ports:
+      - 8080:3000
+
+    environment:
+      MYSQL_HOST: mysql
+      MYSQL_USER: root
+      MYSQL_PASSWORD: secret
+      MYSQL_DB: todos
+volumes:
+  todo-mysql-data:

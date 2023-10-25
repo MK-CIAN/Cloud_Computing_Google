@@ -75,7 +75,7 @@ function TodoListCard() {
     return (
         <React.Fragment> 
             <AddItemForm onNewItem={onNewItem} />
-            <button class = "deleteAll" onClick={onDeleteAllItems}>Delete All Items</button>
+            <button class = "deleteAll" onClick={onDeleteAllItems} disabled>Delete All Items</button>
             {items.length === 0 && (
                 <p className="NoItems">No items yet! Add one above!</p>
             )}
@@ -193,6 +193,7 @@ function ItemDisplay({ item, onItemUpdate, onItemRemoval }) {
                         size="sm"
                         variant="link"
                         onClick={toggleCompletion}
+			disabled
                         aria-label={
                             item.completed
                                 ? 'Mark item as incomplete'

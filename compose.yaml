@@ -3,7 +3,7 @@ version: '3'
 services:
   app:
     container_name: read_write_App
-    image: cianmk/getting-started:latest
+    image: cianmk/getting-started
     ports:
       - 80:3000
     environment:

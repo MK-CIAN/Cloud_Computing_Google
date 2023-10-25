@@ -22,7 +22,7 @@ services:
     container_name: read_only_App
     image: read_only_app
     ports:
-      - 8080:3000
+      - 8000:3000
 
     environment:
       MYSQL_HOST: mysql
